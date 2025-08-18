@@ -1,59 +1,56 @@
-# step 1 : Setup Groq API  key
 
 import os
+import base64
 from dotenv import load_dotenv
-# Load environment variables from .env file
-load_dotenv()
-# Get the Groq API key from environment variables
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    raise ValueError("GROQ_API_KEY is not set in the environment variables.")
-
-
-# step 2: Convert image to required format
-import base64  # Function to convert image to base64 string
-
-def convert_image_to_base64(image_path):
-    """
-    Convert an image file to a base64 encoded string.
-    
-    :param image_path: Path to the image file.
-    :return: Base64 encoded string of the image.
-    """
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
-    
-
-# Step 3: Setup Multimodal LLM
-
 from groq import Groq
+from pathlib import Path
 
-client = Groq()
-query = "Placeholder query"
-completion = client.chat.completions.create(
-    model="llama-3.3-70b-versatile",
-    messages=[
-      {
+# Step 1: Load API key from .env
+load_dotenv()  # looks for .env file in project root
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+if not GROQ_API_KEY:
+    raise ValueError("❌ GROQ_API_KEY is not set in environment variables")
+
+# Step 2: Encode image to base64
+# Use raw string or Path() to avoid invalid escape warnings
+image_path = Path(r"G:\Git_hub_projects\Ai_Doctor\My_personal_doctor\src\image.jpeg")
+
+def convert_image_to_base64(path: Path) -> str:
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+
+encoded_image = convert_image_to_base64(image_path)
+
+# Step 3: Setup Multi-Modal LLM
+client = Groq(api_key=GROQ_API_KEY)
+
+query = "Is there something wrong with my hair?"
+model = "meta-llama/llama-4-scout-17b-16e-instruct"  # vision-enabled model
+
+messages = [
+    {
         "role": "user",
         "content": [
-            {
-                "type": "text",
-                "text": query  
-            },
+            {"type": "text",
+             "text": query
+             },
             {
                 "type": "image_url",
-                "image_url": {
-                    "url": convert_image_to_base64("path/to/your/image.jpg") 
-            }
-        ]
-      }
-    ],
-    temperature=1,
-    max_completion_tokens=1024,
-    top_p=1,
-    stream=True,
-    stop=None
+                "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"}
+            },
+        ],
+    }
+]
+
+chat_completion = client.chat.completions.create(
+    model=model,
+    messages=messages,
+    temperature=0.2,
+    max_completion_tokens=512,
 )
 
-for chunk in completion:
-    print(chunk.choices[0].delta.content or "", end="")
+print("🤖 AI Response:")
+print(chat_completion.choices[0].message.content)
+
+# Step 4: Build prompt with vision model
