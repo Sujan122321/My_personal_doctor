@@ -53,4 +53,3 @@ chat_completion = client.chat.completions.create(
 print("🤖 AI Response:")
 print(chat_completion.choices[0].message.content)
 
-# Step 4: Build prompt with vision model
