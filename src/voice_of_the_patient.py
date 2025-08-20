@@ -1,5 +1,5 @@
 # Step 1: Setup Audio recorder ((ffmpeg and portaudio))
-
+# speechrecognition, pydub
 import logging
 import speech_recognition as sr
 from pydub import AudioSegment
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 AudioSegment.converter = r"C:\ffmpeg\ffmpeg-7.1.1-full_build\bin\ffmpeg.exe"
 
 
-def record_audio(file_path,timeout=20, pharse_time_limit = None):
+def record_audio(file_path,timeout=30, pharse_time_limit = None):
     """
     Simplified  function recording audio from the microphone and saving it as an Mp3 file.
     
