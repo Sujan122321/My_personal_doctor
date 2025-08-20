@@ -46,4 +46,22 @@ audio_filepath = "patient_audio.mp3"
 record_audio(file_path=audio_filepath)
 
 
+# Step 2 : Setup speech to text_STT_model for transcription
 
+import os
+from dotenv import load_dotenv
+from groq import Groq
+
+load_dotenv()  # looks for .env file in project root
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+client = Groq(api_key=GROQ_API_KEY)
+stt_model = "whisper-large-v3"
+audio_file = open(audio_filepath, "rb")
+transcription = client.audio.transcriptions.create(
+    model=stt_model,
+    file=audio_file,
+    language="en"
+)
+
+print("📝 Transcription:", transcription.text)
