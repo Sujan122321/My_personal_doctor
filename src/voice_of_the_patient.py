@@ -55,13 +55,23 @@ from groq import Groq
 load_dotenv()  # looks for .env file in project root
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-client = Groq(api_key=GROQ_API_KEY)
 stt_model = "whisper-large-v3"
-audio_file = open(audio_filepath, "rb")
-transcription = client.audio.transcriptions.create(
-    model=stt_model,
-    file=audio_file,
-    language="en"
-)
 
-print("📝 Transcription:", transcription.text)
+def transcribe_audio_with_groq(stt_model, audio_file_path,GROQ_API_KEY ):
+    """
+    Transcribe audio using Groq's speech-to-text model.
+    
+    Args:
+        audio_file_path (str): Path to the audio file to be transcribed.
+    
+    Returns:
+        str: Transcription of the audio.
+    """
+    client = Groq(api_key=GROQ_API_KEY)
+    audio_file = open(audio_filepath, "rb")
+    transcription = client.audio.transcriptions.create(
+        model=stt_model,
+        file=audio_file,
+        language="en"
+    )
+    return transcription.text
